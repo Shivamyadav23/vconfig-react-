@@ -1,28 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import axios from 'axios';
 
 const RegistrationForm = () => {
-  // Inline styles for the component
-  const styles = {
-    formContainer: {
-      maxWidth: '600px',
-      margin: 'auto',
-      padding: '20px',
-      borderRadius: '8px',
-      backgroundColor: '#f8f9fa',
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    },
-    formGroup: {
-      marginBottom: '1rem',
-    },
-    formLabel: {
-      fontWeight: 'bold',
-    },
-    button: {
-      borderRadius: '5px',
-    },
-    buttonGroup: {
-      marginTop: '1rem',
+  // State to manage form inputs
+  const [formData, setFormData] = useState({
+    username: '', // Added username field
+    email: '',
+    password: '',
+    address_line1: '',
+    address_line2: '',
+    city: '',
+    state: '',
+    pin_code: '',
+    company_name: '',
+    gst_number: '',
+    telephone: '',
+  });
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:8080/api/user/register', formData);
+      alert(response.data); // Display success message or handle it as needed
+    } catch (error) {
+      alert('Error occurred: ' + error.response?.data || error.message);
     }
   };
 
@@ -30,122 +39,37 @@ const RegistrationForm = () => {
     <div className="container mt-5">
       <div className="form-container" style={styles.formContainer}>
         <h2 className="text-center mb-4">Registration Form</h2>
-        <form >
-          {/* Email */}
+        <form onSubmit={handleSubmit}>
+          {/* Username */}
           <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="email" style={styles.formLabel}>Email</label>
-            <input 
-              type="email" 
-              className="form-control" 
-              id="email" 
-              placeholder="Enter your email" 
-              required 
+            <label htmlFor="username" style={styles.formLabel}>Authorized Person Name</label>
+            <input
+              type="text"
+              className="form-control"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={handleChange}
+              required
             />
           </div>
 
-          {/* Password */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="password" style={styles.formLabel}>Password</label>
-            <input 
-              type="password" 
-              className="form-control" 
-              id="password" 
-              placeholder="Enter your password" 
-              required 
-            />
-          </div>
-
-          {/* Address Line 1 */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="address_line1" style={styles.formLabel}>Address Line 1</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="address_line1" 
-              placeholder="Enter your address line 1" 
-              required 
-            />
-          </div>
-
-          {/* Address Line 2 */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="address_line2" style={styles.formLabel}>Address Line 2</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="address_line2" 
-              placeholder="Enter your address line 2" 
-            />
-          </div>
-
-          {/* City */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="city" style={styles.formLabel}>City</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="city" 
-              placeholder="Enter your city" 
-              required 
-            />
-          </div>
-
-          {/* State */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="state" style={styles.formLabel}>State</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="state" 
-              placeholder="Enter your state" 
-              required 
-            />
-          </div>
-
-          {/* Pin Code */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="pin_code" style={styles.formLabel}>Pin Code</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="pin_code" 
-              placeholder="Enter your pin code" 
-              required 
-            />
-          </div>
-
-          {/* Company Name */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="company_name" style={styles.formLabel}>Company Name</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="company_name" 
-              placeholder="Enter your company name" 
-            />
-          </div>
-
-          {/* GST Number */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="gst_number" style={styles.formLabel}>GST Number</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="gst_number" 
-              placeholder="Enter your GST number" 
-            />
-          </div>
-
-          {/* Telephone */}
-          <div className="form-group" style={styles.formGroup}>
-            <label htmlFor="telephone" style={styles.formLabel}>Telephone</label>
-            <input 
-              type="text" 
-              className="form-control" 
-              id="telephone" 
-              placeholder="Enter your telephone number" 
-            />
-          </div>
+          {Object.keys(formData).filter(key => key !== 'username').map((key) => (
+            <div className="form-group" style={styles.formGroup} key={key}>
+              <label htmlFor={key} style={styles.formLabel}>{key.replace(/_/g, ' ').toUpperCase()}</label>
+              <input
+                type={key === 'password' ? 'password' : 'text'}
+                className="form-control"
+                id={key}
+                name={key}
+                placeholder={`Enter your ${key.replace(/_/g, ' ')}`}
+                value={formData[key]}
+                onChange={handleChange}
+                required={key !== 'address_line2' && key !== 'company_name' && key !== 'gst_number' && key !== 'telephone'}
+              />
+            </div>
+          ))}
 
           {/* Button Group */}
           <div className="d-flex justify-content-between" style={styles.buttonGroup}>
@@ -156,6 +80,30 @@ const RegistrationForm = () => {
       </div>
     </div>
   );
+};
+
+const styles = {
+  formContainer: {
+    maxWidth: '600px',
+    margin: 'auto',
+    padding: '20px',
+    borderRadius: '8px',
+    backgroundColor: '#f8f9fa',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+  },
+  formGroup: {
+    marginBottom: '1rem',
+  },
+  formLabel: {
+    fontWeight: 'bold',
+  },
+  button: {
+    borderRadius: '5px',
+    padding: '10px 20px',
+  },
+  buttonGroup: {
+    marginTop: '1rem',
+  }
 };
 
 export default RegistrationForm;
